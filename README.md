@@ -9,6 +9,8 @@ Peyara Remote Mouse v2.0.0 contains an unauthenticated remote code execution vul
     ```nc -nlvp 4444```
 3. Run the provided script to establish a reverse shell connection. Upon successful execution, you will gain remote access to the target system
 
+<img src="https://raw.githubusercontent.com/capture0x/Peyara/refs/heads/main/peyara.png" width="80%"></img>
+
  
 
 
