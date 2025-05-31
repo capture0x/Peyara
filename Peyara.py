@@ -7,7 +7,6 @@
 # Tested on: Windows 10
 
 
-
 #!/usr/bin/env python3
 import asyncio
 import websockets
