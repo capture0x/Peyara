@@ -6,22 +6,7 @@
 # Version: v1.0.1
 # Tested on: Windows 10
 
-"""Remote Access Setup Procedure:
 
-    Install Peyara Remote Mouse
-
-        Download and install the Peyara Remote Mouse application on the Windows target system.
-
-    Configure Netcat Listener
-
-        Open a terminal and execute the following command to start a Netcat listener on port 4444:
-        sh
-
-    nc -nlvp 4444
-
-Execute Exploit Script
-
-    Run the provided script to establish a reverse shell connection. Upon successful execution, you will gain remote access to the target system"""
 
 #!/usr/bin/env python3
 import asyncio
