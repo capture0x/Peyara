@@ -1,4 +1,11 @@
 ## Peyara Remote Mouse v1.0.1 - Remote Code Execution (RCE)
+### Exploit Title: Peyara Remote Mouse v1.0.1 - Remote Code Execution (RCE) 
+### Date: 2025-05-30
+### Exploit Author: tmrswrr
+### Software Link: https://peyara-remote-mouse.vercel.app/
+### Platform: Windows
+### Version: v1.0.1
+### Tested on: Windows 10
 
 ### Vulnerability Description
 Peyara Remote Mouse v1.0.1 contains an unauthenticated remote code execution vulnerability in its WebSocket command interface (port 1313). The application fails to validate or sanitize simulated keyboard input commands received via WebSocket connections, allowing attackers to chain malicious keyboard events that execute arbitrary system commands. This vulnerability can be exploited remotely without authentication to gain full system compromise.
