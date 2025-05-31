@@ -1,5 +1,5 @@
 
-# Exploit Title: Peyara Remote Mouse v2.0.0- Remote Code Execution (RCE) 
+# Exploit Title: Peyara Remote Mouse v1.0.1 - Remote Code Execution (RCE) 
 # Date: 2025-05-30
 # Exploit Author: tmrswrr
 # Software Link: https://peyara-remote-mouse.vercel.app/
