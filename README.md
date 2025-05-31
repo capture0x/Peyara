@@ -6,7 +6,7 @@ Peyara Remote Mouse v2.0.0 contains an unauthenticated remote code execution vul
 
 1. Download and install the Peyara Remote Mouse application on the Windows target system.
 2. Open a terminal and execute the following command to start a Netcat listener on port 4444:
-    nc -nlvp 4444
+    ```nc -nlvp 4444```
 3. Run the provided script to establish a reverse shell connection. Upon successful execution, you will gain remote access to the target system
 
  
